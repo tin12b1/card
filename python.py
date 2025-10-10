@@ -224,28 +224,28 @@ def get_ai_advice_from_gemini(summary_markdown: str, api_key: str) -> str:
         return ("[Lỗi] Chưa cài thư viện 'google-genai'. "
                 "Hãy thêm 'google-genai' vào requirements.txt rồi redeploy.")
 
-    client = genai.Client(api_key=api_key)
-
-    system_prompt = (
-        "You are a fraud risk assistant for credit card transactions. "
-        "Given the model outputs (probabilities and risk levels), provide concise, "
-        "actionable recommendations per band:\n"
-        "- 'Rất cao': hành động ngay (khóa tạm thẻ, gọi khách, manual review).\n"
-        "- 'Cao': rà soát gần thời gian thực, siết rule/velocity, step-up auth.\n"
-        "- 'Trung bình': giám sát, soft control, kiểm tra mẫu.\n"
-        "- 'Thấp': cho phép nhưng tiếp tục theo dõi.\n"
-        "Viết tiếng Việt, gạch đầu dòng rõ ràng; thêm checklist ưu tiên cho Top giao dịch rủi ro."
-    )
-
-    user_prompt = (
-        "Dưới đây là tóm tắt mức rủi ro & Top giao dịch rủi ro cao nhất:\n\n"
-        f"{summary_markdown}\n\n"
-        "Hãy tư vấn các bước xử lý phù hợp cho từng mức (Rất cao/Cao/Trung bình/Thấp) "
-        "và checklist ưu tiên cho Top giao dịch."
-    )
-
     try:
-        # CÁCH ĐÚNG: system_instruction ở config, contents chỉ có user + parts là Part
+        client = genai.Client(api_key=api_key)
+
+        system_prompt = (
+            "You are a fraud risk assistant for credit card transactions. "
+            "Given the model outputs (probabilities and risk levels), provide concise, "
+            "actionable recommendations per band:\n"
+            "- 'Rất cao': hành động ngay (khóa tạm thẻ, gọi khách, manual review).\n"
+            "- 'Cao': rà soát gần thời gian thực, siết rule/velocity, step-up auth.\n"
+            "- 'Trung bình': giám sát, soft control, kiểm tra mẫu.\n"
+            "- 'Thấp': cho phép nhưng tiếp tục theo dõi.\n"
+            "Viết tiếng Việt, gạch đầu dòng rõ ràng; thêm checklist ưu tiên cho Top giao dịch rủi ro."
+        )
+
+        user_prompt = (
+            "Dưới đây là tóm tắt mức rủi ro & Top giao dịch rủi ro cao nhất:\n\n"
+            f"{summary_markdown}\n\n"
+            "Hãy tư vấn các bước xử lý phù hợp cho từng mức (Rất cao/Cao/Trung bình/Thấp) "
+            "và checklist ưu tiên cho Top giao dịch."
+        )
+
+        # ---- Cách đúng theo SDK mới ----
         config = types.GenerateContentConfig(system_instruction=system_prompt)
         contents = [types.Content(role="user",
                                   parts=[types.Part.from_text(user_prompt)])]
@@ -256,7 +256,7 @@ def get_ai_advice_from_gemini(summary_markdown: str, api_key: str) -> str:
             config=config,
         )
 
-        # Trích text theo phiên bản SDK
+        # Lấy text trả về
         text = getattr(resp, "text", None) or getattr(resp, "output_text", "")
         if not text and getattr(resp, "candidates", None):
             parts = []
@@ -270,16 +270,8 @@ def get_ai_advice_from_gemini(summary_markdown: str, api_key: str) -> str:
         return text or "[AI không trả về nội dung]."
 
     except Exception as e:
-        # Fallback cho một số phiên bản SDK hỗ trợ responses.generate
-        try:
-            resp2 = client.responses.generate(
-                model="gemini-1.5-flash",
-                system_instruction=system_prompt,
-                input=user_prompt,
-            )
-            return getattr(resp2, "output_text", "").strip() or "[AI không trả về nội dung]."
-        except Exception as e2:
-            return f"[Lỗi gọi Gemini] {e2 or e}"
+        # Nếu có lỗi (API key, quota, v.v.)
+        return f"[Lỗi gọi Gemini] {str(e)}"
 
 # ==============================================================================
 # 4) GIAO DIỆN
