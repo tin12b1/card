@@ -245,10 +245,11 @@ def get_ai_advice_from_gemini(summary_markdown: str, api_key: str) -> str:
             "và checklist ưu tiên cho Top giao dịch."
         )
 
-        # ---- Cách đúng theo SDK mới ----
+        # ---- SDK mới: tạo nội dung đúng chuẩn ----
         config = types.GenerateContentConfig(system_instruction=system_prompt)
-        contents = [types.Content(role="user",
-                                  parts=[types.Part.from_text(user_prompt)])]
+        contents = [
+            types.Content(role="user", parts=[types.Part(text=user_prompt)])
+        ]
 
         resp = client.models.generate_content(
             model="gemini-1.5-flash",
@@ -270,7 +271,6 @@ def get_ai_advice_from_gemini(summary_markdown: str, api_key: str) -> str:
         return text or "[AI không trả về nội dung]."
 
     except Exception as e:
-        # Nếu có lỗi (API key, quota, v.v.)
         return f"[Lỗi gọi Gemini] {str(e)}"
 
 # ==============================================================================
