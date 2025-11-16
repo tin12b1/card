@@ -251,8 +251,9 @@ def get_ai_advice_from_gemini(summary_markdown: str, api_key: str) -> str:
             types.Content(role="user", parts=[types.Part(text=user_prompt)])
         ]
 
+        # Sửa lỗi: Thay thế tên mô hình từ 'gemini-1.5-flash' thành 'gemini-2.5-flash'
         resp = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash", # <--- ĐÃ SỬA LỖI 404
             contents=contents,
             config=config,
         )
