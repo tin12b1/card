@@ -1,0 +1,12 @@
+
+site_name: Tài liệu demo
+site_description: Tài liệu cho card-test
+
+nav:
+  - Home: index.md
+  - Kiến trúc: architecture.md
+  - Hướng dẫn phát triển: development.md
+  - API: api.md
+
+plugins:
+  - techdocs-core
