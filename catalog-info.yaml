@@ -1,0 +1,56 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: card-test
+  description: Demo đăng ký repo hiện có - Card
+  annotations:
+    github.com/project-slug: tin12b1/card
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - python-3
+    - streamlit
+spec:
+  type: website
+  lifecycle: production
+  owner: group:default/ai
+  system: system:default/card
+  providesApis:
+    - trans-card
+  consumesApis:
+    - acc-bal
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: trans-card
+  description: Cung cấp danh sách giao dịch thẻ
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:default/ai
+  system: system:default/card
+  definition: |
+    openapi: "3.0.0"
+    info:
+      title: trans-card
+      version: "1.0.0"
+      description: Cung cấp danh sách giao dịch thẻ
+    paths: {}
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: acc-bal
+  description: Lấy số dư tài khoản thanh toán
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:default/ai
+  system: system:default/card
+  definition: |
+    openapi: "3.0.0"
+    info:
+      title: acc-bal
+      version: "1.0.0"
+      description: Lấy số dư tài khoản thanh toán
+    paths: {}
