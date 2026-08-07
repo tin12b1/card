@@ -6,6 +6,7 @@ metadata:
   annotations:
     github.com/project-slug: tin12b1/card
     backstage.io/techdocs-ref: dir:.
+    app.version/current: "v1.0.0"
   tags:
     - python-3
     - streamlit
